@@ -6,12 +6,21 @@
 (() => {
 
     function renderTemplate(template, users) {
-        let bracketStuff = /\{\{\s+(\w+)\s+\}\}/gm; //Full matches brackets and contents, captures full match and string.
+        console.log(users);
+        let bracketStuff = /\{\{\s+([\w.]+)\s+\}\}/gm; //Full matches brackets and contents, captures full match and string.
         let renderTemplate = template;
         
         users.forEach((user) => {
-            renderTemplate = renderTemplate.replace(bracketStuff, (match, value) => {
-                return user[value];
+            renderTemplate = renderTemplate.replace(bracketStuff, (match, matches) => {
+                let arr = matches.split('.');
+                let parent = user;
+                let value;
+                while(arr.length > 0) {
+                    value = parent[`${arr[0]}`];
+                    parent = value;
+                    arr.shift();
+                }
+                return value;
             });
             document.getElementById('z-user-list').insertAdjacentHTML('beforeend', renderTemplate);
             renderTemplate = template;
@@ -20,9 +29,9 @@
 
     const userLiTemplate = `
     <li class="user">
-        <img class="user-photo" src="{{ photo }}" alt="Photo of {{ firstName }} {{ lastName }}">
-        <div class="user-name">{{ firstName }} {{ lastName }}</div>
-        <div class="user-location">{{ city }}, {{ state }}</div>
+        <img class="user-photo" src="{{ picture.thumbnail }}" alt="Photo of {{ name.first }} {{ name.last }}">
+        <div class="user-name">{{ name.first }} {{ name.last }}</div>
+        <div class="user-location">{{ location.city }}, {{ location.state }}</div>
         <div class="user-email">{{ email }}</div>
     </li>
     `;
@@ -30,21 +39,7 @@
     function init() {
         fetch('https://randomuser.me/api/?results=5')
             .then(res => res.json())
-            .then((json) => {
-                const allData = json.results.map((user) => {
-                    const data = {
-                        photo: user.picture.thumbnail,
-                        firstName: user.name.first,
-                        lastName: user.name.last,
-                        city: user.location.city,
-                        state: user.location.state,
-                        email: user.email
-                        };
-                    return data;
-                })
-                return allData;
-            })
-            .then(allData => renderTemplate(userLiTemplate, allData));
+            .then(data => renderTemplate(userLiTemplate, data.results));
     }
 
     document.addEventListener('DOMContentLoaded', init);
