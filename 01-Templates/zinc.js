@@ -3,26 +3,31 @@
 /* eslint-env browser */
 
 (() => {
-    function populateList(results) {
-        results.forEach((user) => {
-            let newListItem = document.createElement('li');
-            newListItem.classList.add('user');
-            let newListItemContents = `
-                <img class="user-photo" src="${user.picture.thumbnail}" alt="Photo of ${user.name.first} ${user.name.last}">
-                <div class="user-name">${user.name.first} ${user.name.last}</div>
-                <div class="user-location">${user.location.city}, ${user.location.state}</div>
-                <div class="user-email">${user.email}</div>
-            `;
-            newListItem.innerHTML = newListItemContents;
-            document.getElementById('z-user-list').appendChild(newListItem);
+    function renderTemplate(template, users) {
+        users.forEach((user) => {
+            let renderTemplate = template.replace(/{{ photo }}/gm, `${user.picture.thumbnail}`);
+            renderTemplate = renderTemplate.replace(/{{ firstName }}/gm, `${user.name.first}`);
+            renderTemplate = renderTemplate.replace(/{{ lastName }}/gm, `${user.name.last}`);
+            renderTemplate = renderTemplate.replace(/{{ city }}/gm, `${user.location.city}`);
+            renderTemplate = renderTemplate.replace(/{{ state }}/gm, `${user.location.state}`);
+            renderTemplate = renderTemplate.replace(/{{ email }}/gm, `${user.email}`);
+            document.getElementById('z-user-list').insertAdjacentHTML('beforeend', renderTemplate);
         });
-        console.log(results); // eslint-disable-line no-console
     }
+
+    const userLiTemplate = `
+    <li class="user">
+        <img class="user-photo" src="{{ photo }}" alt="Photo of {{ firstName }} {{ lastName }}">
+        <div class="user-name">{{ firstName }} {{ lastName }}</div>
+        <div class="user-location">{{ city }}, {{ state }}</div>
+        <div class="user-email">{{ email }}</div>
+    </li>
+    `;
 
     function init() {
         fetch('https://randomuser.me/api/?results=5')
             .then(res => res.json())
-            .then(json => populateList(json.results));
+            .then(json => renderTemplate(userLiTemplate, json.results));
     }
 
     document.addEventListener('DOMContentLoaded', init);
