@@ -4,16 +4,17 @@
 
 
 (() => {
+
     function renderTemplate(template, users) {
-        console.log(users);
-        users.forEach((data) => {
-            let renderTemplate = template.replace(/{{ photo }}/gm, `${data.photo}`);
-            renderTemplate = renderTemplate.replace(/{{ firstName }}/gm, `${data.firstName}`);
-            renderTemplate = renderTemplate.replace(/{{ lastName }}/gm, `${data.lastName}`);
-            renderTemplate = renderTemplate.replace(/{{ city }}/gm, `${data.city}`);
-            renderTemplate = renderTemplate.replace(/{{ state }}/gm, `${data.state}`);
-            renderTemplate = renderTemplate.replace(/{{ email }}/gm, `${data.email}`);
+        let bracketStuff = /\{\{\s+(\w+)\s+\}\}/gm; //Full matches brackets and contents, captures full match and string.
+        let renderTemplate = template;
+        
+        users.forEach((user) => {
+            renderTemplate = renderTemplate.replace(bracketStuff, (match, value) => {
+                return user[value];
+            });
             document.getElementById('z-user-list').insertAdjacentHTML('beforeend', renderTemplate);
+            renderTemplate = template;
         });
     }
 
