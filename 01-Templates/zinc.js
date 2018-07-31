@@ -2,15 +2,17 @@
 
 /* eslint-env browser */
 
+
 (() => {
     function renderTemplate(template, users) {
-        users.forEach((user) => {
-            let renderTemplate = template.replace(/{{ photo }}/gm, `${user.picture.thumbnail}`);
-            renderTemplate = renderTemplate.replace(/{{ firstName }}/gm, `${user.name.first}`);
-            renderTemplate = renderTemplate.replace(/{{ lastName }}/gm, `${user.name.last}`);
-            renderTemplate = renderTemplate.replace(/{{ city }}/gm, `${user.location.city}`);
-            renderTemplate = renderTemplate.replace(/{{ state }}/gm, `${user.location.state}`);
-            renderTemplate = renderTemplate.replace(/{{ email }}/gm, `${user.email}`);
+        console.log(users);
+        users.forEach((data) => {
+            let renderTemplate = template.replace(/{{ photo }}/gm, `${data.photo}`);
+            renderTemplate = renderTemplate.replace(/{{ firstName }}/gm, `${data.firstName}`);
+            renderTemplate = renderTemplate.replace(/{{ lastName }}/gm, `${data.lastName}`);
+            renderTemplate = renderTemplate.replace(/{{ city }}/gm, `${data.city}`);
+            renderTemplate = renderTemplate.replace(/{{ state }}/gm, `${data.state}`);
+            renderTemplate = renderTemplate.replace(/{{ email }}/gm, `${data.email}`);
             document.getElementById('z-user-list').insertAdjacentHTML('beforeend', renderTemplate);
         });
     }
@@ -27,7 +29,21 @@
     function init() {
         fetch('https://randomuser.me/api/?results=5')
             .then(res => res.json())
-            .then(json => renderTemplate(userLiTemplate, json.results));
+            .then((json) => {
+                const allData = json.results.map((user) => {
+                    const data = {
+                        photo: user.picture.thumbnail,
+                        firstName: user.name.first,
+                        lastName: user.name.last,
+                        city: user.location.city,
+                        state: user.location.state,
+                        email: user.email
+                        };
+                    return data;
+                })
+                return allData;
+            })
+            .then(allData => renderTemplate(userLiTemplate, allData));
     }
 
     document.addEventListener('DOMContentLoaded', init);
