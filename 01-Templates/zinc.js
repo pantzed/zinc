@@ -6,14 +6,12 @@
 (() => {
 
     function renderTemplate(template, users) {
-        console.log(users);
         let bracketStuff = /\{\{\s+([\w.]+)\s+\}\}/gm;
         
         users.forEach((user) => {
             renderTemplate = template.replace(bracketStuff, (match, matches) => {
                 let arr = matches.split('.');
                 return arr.reduce((acc, curr) => acc[curr], user);
-                console.log(thing);
             });
             document.getElementById('z-user-list').insertAdjacentHTML('beforeend', renderTemplate);
         });
