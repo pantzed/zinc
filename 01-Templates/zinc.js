@@ -7,23 +7,15 @@
 
     function renderTemplate(template, users) {
         console.log(users);
-        let bracketStuff = /\{\{\s+([\w.]+)\s+\}\}/gm; //Full matches brackets and contents, captures full match and string.
-        let renderTemplate = template;
+        let bracketStuff = /\{\{\s+([\w.]+)\s+\}\}/gm;
         
         users.forEach((user) => {
-            renderTemplate = renderTemplate.replace(bracketStuff, (match, matches) => {
+            renderTemplate = template.replace(bracketStuff, (match, matches) => {
                 let arr = matches.split('.');
-                let parent = user;
-                let value;
-                while(arr.length > 0) {
-                    value = parent[`${arr[0]}`];
-                    parent = value;
-                    arr.shift();
-                }
-                return value;
+                return arr.reduce((acc, curr) => acc[curr], user);
+                console.log(thing);
             });
             document.getElementById('z-user-list').insertAdjacentHTML('beforeend', renderTemplate);
-            renderTemplate = template;
         });
     }
 
