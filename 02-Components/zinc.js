@@ -38,8 +38,16 @@ Zinc.registerComponent = function(elementName, templateFile, dataObject){
     }
 
     function init() {
-        Zinc.registerComponent('user-item', 'user', Zinc.userData);
-        renderComponents(Zinc.components);
+        fetch('https://randomuser.me/api/?results=5')
+        .then(res => res.json())
+        .then(data => {
+            for(let i=0; i<data.results.length; i++){
+                Zinc.registerComponent(`user${i}`, 'user', data.results[i]);
+            }
+        })
+        .then(() => {
+            return renderComponents(Zinc.components)
+        });
     }
 
     document.addEventListener('DOMContentLoaded', init);
