@@ -4,37 +4,28 @@
 
 const Zinc = {};
 Zinc.components = {};
-Zinc.registerComponent = function(elementName, templateFile, dataObject, controller){
-    Zinc.components[elementName] = {
-        elementName,
-        templateFile,
-        dataObject,
-        controller
-    };
+Zinc.registerComponent = function(componentObject){
+    Zinc.components[componentObject.elementName] = componentObject;
 };
 
 (() => {
     function renderComponents(components){
         for (let component in components) {
-            renderComponent(
-                components[component].elementName,
-                components[component].templateFile,
-                components[component].dataObject,
-                components[component].controller
-            )
+            console.log();
+            renderComponent(components[component]);
         }
     }
 
-    function renderComponent(element, content, data, controller) {
-        const elements = Array.from(document.getElementsByTagName(element));
-        fetch(`${content}.html`)
+    function renderComponent(component) {
+        const elements = Array.from(document.getElementsByTagName(component.elementName));
+        fetch(`${component.templateFile}.html`)
         .then(html => html.text())
         .then(template => {
             let regex = /{{\s*([\w.]+)\s*}}/g;
-            let arr = [data];
+            let arr = [component.data];
             arr.forEach(user => 
                 elements.forEach((element) => {
-                    element.addEventListener('click', controller);
+                    element.addEventListener('click', component.controller);
                     return element.insertAdjacentHTML('beforeend', template.replace(regex, (match, capture) => 
                         capture.split('.').reduce((acc, curr) =>
                             acc[curr], user)))
@@ -51,7 +42,12 @@ Zinc.registerComponent = function(elementName, templateFile, dataObject, control
         .then(res => res.json())
         .then(data => {
             for(let i=0; i<data.results.length; i++){
-                Zinc.registerComponent(`user${i}`, 'user', data.results[i], toggleHilight);
+                Zinc.registerComponent({
+                    elementName: `user${i}`,
+                    templateFile: 'user',
+                    data: data.results[i],
+                    controller: toggleHilight
+                });
             }
         })
         .then(() => {
