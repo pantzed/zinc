@@ -11,7 +11,6 @@ Zinc.registerComponent = function(componentObject){
 (() => {
     function renderComponents(components){
         for (let component in components) {
-            console.log();
             renderComponent(components[component]);
         }
     }
@@ -21,16 +20,34 @@ Zinc.registerComponent = function(componentObject){
         fetch(`${component.templateFile}.html`)
         .then(html => html.text())
         .then(template => {
-            let regex = /{{\s*([\w.]+)\s*}}/g;
+            let tagMatch = /{{\s*([\w.]+)\s*}}/g;
             let arr = [component.data];
             arr.forEach(user => 
                 elements.forEach((element) => {
                     element.addEventListener('click', component.controller);
-                    return element.insertAdjacentHTML('beforeend', template.replace(regex, (match, capture) => 
+                    element.insertAdjacentHTML('beforeend', template.replace(tagMatch, (match, capture) => 
                         capture.split('.').reduce((acc, curr) =>
-                            acc[curr], user)))
+                            acc[curr], user)));
+                            checkForNested(element);
                 }));
         });
+    }
+
+    function checkForNested(parentNode) {
+        if (parentNode.childNodes.length === 0) {
+            return;
+        }
+        else {
+            Array.from(parentNode.childNodes).forEach((node) => {
+                if (Zinc.components[node.localName] !== undefined) {
+                    renderComponent(Zinc.components[node.localName]);
+                }
+                else {
+                    checkForNested(node);
+                }
+            });
+            return;
+        }
     }
 
     function toggleHilight() {
@@ -51,6 +68,7 @@ Zinc.registerComponent = function(componentObject){
             }
         })
         .then(() => {
+            Zinc.registerComponent({elementName: 'user-list', templateFile:'user-list'})
             return renderComponents(Zinc.components)
         });
     }
