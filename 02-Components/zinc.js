@@ -51,6 +51,8 @@ Zinc.registerComponent = function(componentObject){
     }
 
     function toggleHilight() {
+        console.log(this);
+        console.log(this.firstElementChild);
         this.firstElementChild.classList.toggle('hilight');
     }
 
